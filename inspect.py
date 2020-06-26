@@ -62,11 +62,41 @@ cell = 1
 cpi=f'{scanner()}'
 sheet[cpi] = ping
 
-
-
-print ('----Information has been saved-----')
-
-
-
-
+#Information is saved
+print('----Information has been saved-----\n')
 wb.save('work.xlsx')
+
+#Compares ping and establish jitter
+def compare():
+    column = 'D'
+    cell = 1
+    location = f'{column}{cell}'
+    place = sheet[location]
+    read = [place.value]
+    while True:
+        if read != None:
+            cell += 1
+            location = f'{column}{cell}'
+            place = sheet[location]
+            read = place.value
+        if read == None:
+            last_png = f'{column}{cell - 1}'
+            previous_png = f'{column}{cell - 2}'
+            before_png = f'{column}{cell - 3}'
+            ping_a = sheet[last_png]
+            ping_b = sheet[previous_png]
+            ping_c = sheet[before_png]
+            avg=((float(ping_a.value) + float(ping_b.value) + float(ping_c.value)/2))
+            diff_1=(abs(float(ping_c.value) - float(ping_b.value)))
+            diff_2 =(abs(float(ping_b.value)- float(ping_a.value)))
+            avg_diff = int((diff_1 + diff_2)/2)
+            jitter = (avg_diff/avg) * 100
+            return(jitter)
+            break
+
+result = (float("{:.2f}".format(compare())))
+print("----Stability Result----")
+if result >= 15.0:
+    print(f"Jitter is {result}% this connection might be unreliable.")
+else:
+    print(f"Jitter is {result}% Everything seems fine. For now.")
